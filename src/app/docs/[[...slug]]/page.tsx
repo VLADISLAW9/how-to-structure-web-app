@@ -18,9 +18,14 @@ export const generateMetadata = async (props: { params: Promise<{ slug?: string[
   };
 };
 
-const Page = async (props: { params: Promise<{ slug?: string[] }> }) => {
+interface PageProps {
+  params: Promise<{ slug?: string[] }>;
+}
+
+const Page = async (props: PageProps) => {
   const params = await props.params;
   const page = source.getPage(params.slug);
+
   if (!page) notFound();
 
   const MDXContent = page.data.body;

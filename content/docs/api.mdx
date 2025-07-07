@@ -1,0 +1,56 @@
+---
+title: 🌐 Структурирование API
+---
+
+---
+
+## Структура API
+
+REST API — это стандарт. Мы структурируем запросы по эндпоинтам, чтобы было понятно, где и что находится.
+
+### Пример API
+
+```
+GET    /api/todos
+POST   /api/todos
+GET    /api/todos/{id}
+DELETE /api/todos/{id}
+PUT    /api/todos/{id}
+```
+
+### Структура на фронте
+
+```bash
+src/
+└── utils/
+    └── api/
+        ├── instance.ts
+        └── requests/
+            └── todos/
+                ├── get.ts
+                ├── post.ts
+                └── {id}/
+                    ├── get.ts
+                    ├── delete.ts
+                    └── put.ts
+```
+
+### axios instance
+
+```ts title="instance.ts"
+import axios from 'axios';
+
+export const api = axios.create({
+  baseURL: 'https://some-service.com/api'
+});
+```
+
+### Пример запроса
+
+```ts title="getTodos.ts"
+import { api } from '@/utils/api/instance';
+
+export const getTodos = () => api.get<never, ApiResponse<Todo[]>>('/todos');
+```
+
+💡 **Совет**: Используй `getTodos`, `postTodo`, `deleteTodoById` — названия должны быть читаемыми и говорящими.

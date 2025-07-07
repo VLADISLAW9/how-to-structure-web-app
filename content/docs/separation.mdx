@@ -1,0 +1,50 @@
+---
+title: ⚙️  Разделение логики и UI
+---
+
+---
+
+## Разделение логики и UI
+
+Каждый компонент или страница имеет:
+
+- UI: `Component.tsx`
+- Бизнес-логику: `useComponent.ts`
+
+### Пример
+
+```tsx title="useHome.ts"
+import { useState } from 'react';
+
+export const useHome = () => {
+  const [todos, setTodos] = useState<{ name: string; description: string }[]>([]);
+
+  const addTodo = () => {
+    setTodos([...todos, { name: '', description: '' }]);
+  };
+
+  return {
+    state: { todos },
+    actions: { addTodo }
+  };
+};
+```
+
+```tsx title="Home.tsx"
+import { useHome } from './hooks';
+import { TodoItem } from './components';
+
+export const Home = () => {
+  const { state, actions } = useHome();
+
+  return (
+    <div>
+      <h1>Home</h1>
+      <button onClick={actions.addTodo}>Add Todo</button>
+      {state.todos.map((todo, index) => (
+        <TodoItem key={index} {...todo} />
+      ))}
+    </div>
+  );
+};
+```

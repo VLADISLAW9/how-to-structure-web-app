@@ -4,8 +4,10 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 
 import { baseOptions } from '@/app/layout.config';
 
-const Layout = ({ children }: { children: ReactNode }) => {
-  return <HomeLayout {...baseOptions}>{children}</HomeLayout>;
-};
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => <HomeLayout {...baseOptions}>{children}</HomeLayout>;
 
 export default Layout;

@@ -9,14 +9,16 @@ const inter = Inter({
   subsets: ['latin']
 });
 
-const Layout = ({ children }: { children: ReactNode }) => {
-  return (
-    <html className={inter.className} lang='en' suppressHydrationWarning>
-      <body className='flex flex-col min-h-screen'>
-        <RootProvider>{children}</RootProvider>
-      </body>
-    </html>
-  );
-};
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout = ({ children }: LayoutProps) => (
+  <html className={inter.className} lang='en' suppressHydrationWarning>
+    <body className='flex flex-col min-h-screen'>
+      <RootProvider>{children}</RootProvider>
+    </body>
+  </html>
+);
 
 export default Layout;
