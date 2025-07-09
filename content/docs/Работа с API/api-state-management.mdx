@@ -1,0 +1,141 @@
+---
+title: ⚛️ State Management
+---
+
+---
+
+## ⚛️ Работа с API State Managers
+
+Вместо нативных axios/fetch-запросов, мы можем использовать **state-management библиотеки для API**, такие как:
+
+- [TanStack Query](https://tanstack.com/query/latest) (`react-query`)
+- [RTK Query](https://redux-toolkit.js.org/rtk-query/overview`)
+
+Эти инструменты позволяют:
+
+- Отслеживать `loading`, `error`, `success` состояния
+- Кэшировать данные
+- Повторно использовать бизнес-логику вне UI
+- Избавиться от ручного управления состоянием
+
+---
+
+## 🔧 Базовая идея
+
+Предположим, у нас есть функция:
+
+```ts title="getTodos.ts"
+export const getTodos = () => api.get('/todos');
+```
+
+Вместо прямого вызова в компоненте, мы создаём **гибкий обёрточный хук**:
+
+### Структура:
+
+```
+-api
+ ├─ hooks/
+ │   ├─ useGetTodosQuery.ts
+ │   └─ index.ts
+ ├─ requests/
+ │   ├─ getTodos.ts
+ │   └─ index.ts
+ └─ instance.ts
+```
+
+---
+
+## ✅ useQuery — получение данных
+
+```ts title="useGetTodosQuery.ts"
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { type GetTodosParams, getTodos } from '@/utils/api';
+
+export const useGetTodosQuery = (
+  params?: GetTodosParams,
+  settings?: {
+    config?: AxiosRequestConfig;
+    options?: UseQueryOptions;
+  }
+) =>
+  useQuery({
+    queryKey: ['getTodos', params],
+    queryFn: () => getTodos({ params, config: settings?.config }),
+    ...settings?.options
+  });
+```
+
+💡 Такой хук можно вызывать где угодно, он **атомарен и независим от UI**.
+
+---
+
+## 🧩 Использование в компоненте
+
+```tsx title="TodoList.tsx"
+import { useGetTodosQuery } from '@/utils/api';
+
+export const TodoList = () => {
+  const { data, isLoading, error } = useGetTodosQuery();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{String(error)}</div>;
+
+  return (
+    <ul>
+      {data?.map((todo) => (
+        <li key={todo.id}>{todo.title}</li>
+      ))}
+    </ul>
+  );
+};
+```
+
+---
+
+## ✍️ useMutation — создание/изменение
+
+Аналогично создаём хук для мутаций:
+
+```ts title="usePostTodoMutation.ts"
+import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
+import { postTodo, type PostTodoConfig } from '@/utils/api';
+
+export const usePostTodoMutation = (settings?: {
+  config?: AxiosRequestConfig;
+  options?: UseMutationOptions;
+}) =>
+  useMutation({
+    mutationKey: ['postTodo'],
+    mutationFn: ({ params, config }: PostTodoConfig) =>
+      postTodo({ params, config: { ...settings?.config, ...config } }),
+    ...settings?.options
+  });
+```
+
+📦 Структура:
+
+```
+-api
+ ├─ hooks/
+ │   ├─ useGetTodosQuery.ts
+ │   ├─ usePostTodoMutation.ts
+ │   └─ index.ts
+ ├─ requests/
+ │   ├─ getTodos.ts
+ │   ├─ postTodo.ts
+ │   └─ index.ts
+ └─ instance.ts
+```
+
+---
+
+## 💡 Рекомендации
+
+- Все `query` и `mutation`-хуки должны лежать в `api/hooks`
+- Не мешай UI и бизнес-логику
+- Думай о хуке как о модуле, который можно переиспользовать в другом проекте
+- Используй `queryKey` с параметрами, если они есть
+
+---
+
+Готово ✅ Теперь у тебя мощный API-слой, полностью отделённый от UI, и готовый к масштабированию.
